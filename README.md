@@ -6,6 +6,8 @@ amazon-s3log-serde is a general-purpose SerDe (serializer-deserializer) to prepa
 
 This SerDe serves as the basis for the SnowPlow-specific SerDes found [in the SnowPlow project] [snowplowserdes] but should be generally useful for anyone wanting to analyse AWS access log files in Hive, whether SnowPlow users or not.
 
+amazon-s3log-serde is written in Scala and available as a minified jar (see the [Downloads] [downloads] menu for use in the Hive console. 
+
 ## The AWS access log format
 
 Amazon Web Services' S3 and CloudFront access logs both use the [W3C extended format] [w3cformat], consisting of the following fields:
