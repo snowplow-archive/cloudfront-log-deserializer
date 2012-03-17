@@ -53,7 +53,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 [hive]: http://hive.apache.org/ 
-[snowplowserdes]: http://TODO
+[snowplowserdes]: https://github.com/snowplow/snowplow/tree/master/serdes 
 [license]: http://www.apache.org/licenses/LICENSE-2.0
 [w3cformat]: http://www.w3.org/TR/WD-logfile.html 
 [downloads]: https://github.com/snowplow/amazon-s3log-serde/downloads
