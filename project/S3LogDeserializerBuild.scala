@@ -13,7 +13,7 @@
 import sbt._
 import Keys._
 
-object S3LogSerdeBuild extends Build {
+object S3LogDeserializerBuild extends Build {
 
   import Dependencies._
   import BuildSettings._

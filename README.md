@@ -1,12 +1,12 @@
-# Amazon S3 and CloudFront access log SerDe for Hive
+# Amazon S3 and CloudFront access log Deserializer for Hive
 
 ## Introduction
 
-amazon-s3log-serde is a general-purpose SerDe (serializer-deserializer) to prepare Amazon Web Services' S3 and CloudFront access logs for analysis using [Apache Hive] [hive].
+amazon-s3log-serde is a Deserializer to prepare Amazon Web Services' S3 and CloudFront access logs for analysis using [Apache Hive] [hive].
 
-This SerDe serves as the basis for the SnowPlow-specific SerDes found [in the SnowPlow project] [snowplowserdes] but should be generally useful for anyone wanting to analyse AWS access log files in Hive, whether SnowPlow users or not.
+This Deserializer serves as the basis for the SnowPlow-specific Deserializers found [in the SnowPlow project] [snowplowserdes] but should be generally useful for anyone wanting to analyse AWS access log files in Hive, whether SnowPlow users or not.
 
-amazon-s3log-serde is written in Scala and available as a minified jar (see the [Downloads] [downloads] menu for use in the Hive console. 
+amazon-s3log-serde is written in Scala and available as a minified jar (see the [Downloads] [downloads] menu for use in the Hive console. It has slightly different functionality from the [S3LogDeserializer] [s3logdeserializer] which comes bundled with Hive (the differences are detailed below).
 
 ## The AWS access log format
 
@@ -33,11 +33,17 @@ Here is the Hive table definition in full:
 
     TODO
 
+## Differences from S3LogDeserializer
+
+This Deserializer has slightly different behaviour from the first party S3LogDeserializer:
+
+* TODO
+
 ## Usage
 
-You can download a minified Jar for amazon-s3log-serde from GitHub from the [Downloads] [downloads] menu.
+You can download a minified jarfile for amazon-s3log-serde from GitHub from the [Downloads] [downloads] menu.
 
-Once you have the jarfile on your classpath, using this SerDe with Hive is easy:
+Once you have the jarfile on your classpath, using this Deserializer with Hive is easy:
 
     TODO 
 
