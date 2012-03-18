@@ -35,7 +35,7 @@ Here is the Hive table definition in full:
 
 ## Differences from S3LogDeserializer
 
-This Deserializer has slightly different behaviour from the first party S3LogDeserializer:
+This Deserializer has slightly different behaviour from the [S3LogDeserializer] [s3logdeserializer] which comes as part of the Apache Hive project:
 
 * TODO
 
