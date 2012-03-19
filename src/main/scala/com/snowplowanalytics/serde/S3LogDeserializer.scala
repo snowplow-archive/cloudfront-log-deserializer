@@ -50,6 +50,9 @@ class S3LogDeserializer implements Deserializer @throws(classOf[SerDeException])
   // Our mutable object inspector
   private var inspector: ObjectInspector = _
 
+  // For performance reasons we reuse the same object to deserialize all of our rows
+  private val struct: S3LogObject = new S3LogObject()
+
   // -------------------------------------------------------------------------------------------------------------------
   // Initializer
   // -------------------------------------------------------------------------------------------------------------------
@@ -65,7 +68,7 @@ class S3LogDeserializer implements Deserializer @throws(classOf[SerDeException])
   override def initialize(conf: Configuration, tbl: Properties) {
 
     inspector = OIF.getReflectionObjectInspector(classOf[S3LogTable], OIF.ObjectInspectorOptions.JAVA)
-    log.debug(getClass().getName() + ": initialized")
+    log.debug("%s initialized".format(getClass().getName()))
   }
 
   // -------------------------------------------------------------------------------------------------------------------
@@ -96,8 +99,8 @@ class S3LogDeserializer implements Deserializer @throws(classOf[SerDeException])
       case _ => throw new SerDeException("%s expects blob to be Text or BytesWritable".format(this.getClass.getName), e)
     }
 
-    // Construct the S3LogObject from the row data
-    S3LogObject(row)
+    // Construct and return the S3LogObject from the row data
+    struct.parse(row)
   }
 
   // -------------------------------------------------------------------------------------------------------------------
@@ -120,5 +123,5 @@ class S3LogDeserializer implements Deserializer @throws(classOf[SerDeException])
    * @throws SerDeException For any exception during initialization
    */
   @throws SerDeException
-  def getObjectInspector() = inspector
+  def getObjectInspector(): ObjectInspector = inspector
 }

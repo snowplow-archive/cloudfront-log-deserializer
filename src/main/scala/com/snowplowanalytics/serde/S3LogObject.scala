@@ -15,72 +15,81 @@ package com.snowplowanalytics.serde
 // Java
 import java.text.SimpleDateFormat
 
+// Scala
+import scala.util.matching.Regex
 
-object S3LogObject {
-  
+/**
+ * S3LogObject
+ */
+class S3LogObject() {
+
+  // -------------------------------------------------------------------------------------------------------------------
+  // Mutable properties for this Hive struct
+  // -------------------------------------------------------------------------------------------------------------------
+
+  var datetime: Long
+  var edgelocation: String
+  var bytessent: Integer 
+  var ipaddress: String
+  var operation: String
+  var domain: String
+  var objct: String
+  var httpstatus: Integer
+  var useragent: String
+
   // -------------------------------------------------------------------------------------------------------------------
   // Static configuration
   // -------------------------------------------------------------------------------------------------------------------
 
   // Define the regular expression for extracting the fields
   // Adapted from Amazon's own cloudfront-loganalyzer.tgz
-  val w = "[\\s]+" // Whitespace regex
-  val cfRegex = "([\\S]+[\\s]+[\\S]+)"  // DateTime
-          + w + "([\\S]+)"              // EdgeLocation
-          + w + "([\\S]+)"              // Bytes
-          + w + "([\\S]+)"              // IPAddress
-          + w + "([\\S]+)"              // Operation
-          + w + "([\\S]+)"              // Domain
-          + w + "([\\S]+)"              // Object
-          + w + "([\\S]+)"              // HttpResponse
-          + w + "[\\S]+"                //   (ignore junk)
-          + w + "(.+)"                  // UserAgent
+  private val w = "[\\s]+" // Whitespace regex
+  private val CfRegex = new Regex("([\\S]+[\\s]+[\\S]+)"  // DateTime
+                            + w + "([\\S]+)"              // EdgeLocation
+                            + w + "([\\S]+)"              // ByteSent
+                            + w + "([\\S]+)"              // IPAddress
+                            + w + "([\\S]+)"              // Operation
+                            + w + "([\\S]+)"              // Domain
+                            + w + "([\\S]+)"              // Object
+                            + w + "([\\S]+)"              // HttpStatus
+                            + w + "[\\S]+"                //   (ignore junk)
+                            + w + "(.+)")                 // UserAgent
 
   // To handle the CloudFront DateTime format
-  val cfDateFormat = new SimpleDateFormat("dd/MMM/yyyy:hh:mm:ss ZZZZZ")
+  private val cfDateFormat = new SimpleDateFormat("dd/MMM/yyyy:hh:mm:ss ZZZZZ")
+
+  // -------------------------------------------------------------------------------------------------------------------
+  // Deserialization logic
+  // -------------------------------------------------------------------------------------------------------------------
 
   /**
-   *
+   * Parses the input row String into a Java object.
+   * For performance reasons this works in-place updating the fields
+   * within this S3LogObject, rather than creating a new one.
+   * 
+   * @param row The raw String containing the row contents
+   * @return This struct with all values updated
+   * @throws SerDeException For any exception during initialization
    */
-  static Object deserialize(S3LogStruct c, String row) throws Exception {
-    Matcher match = regexpat.matcher(row);
-    int t = 1;
-    try {
-      match.matches();
-      c.bucketowner = match.group(t++);
-      c.bucketname = match.group(t++);
-    } catch (Exception e) {
-      throw new SerDeException("S3 Log Regex did not match:" + row, e);
+  @throws classOf[SerDeException]
+  def parse(row: String): Object {
+    
+    // Check our row is kosher
+    row match {
+      case CfRegex(dt, edg, byt, ip, op, dmn, obj, sts, _, ua) =>
+        this.datetime = sinceEpoch(dt)
+        this.edgelocation = edg
+        this.bytes = byt
+        this.ipaddress = ip
+        this.operation = op
+        this.domain = dmn
+        this.objct = obj
+        this.httpstatus = sts
+        this.useragent = ua
+      case _ => throw new SerDeException("CloudFront regexp did not match: %s".format(row), e)
     }
-    c.rdatetime = match.group(t++);
 
-    // Should we convert the datetime to the format Hive understands by default
-    // - either yyyy-mm-dd HH:MM:SS or seconds since epoch?
-    // Date d = dateparser.parse(c.rdatetime);
-    // c.rdatetimeepoch = d.getTime() / 1000;
-
-    c.rip = match.group(t++);
-    c.requester = match.group(t++);
-    c.requestid = match.group(t++);
-    c.operation = match.group(t++);
-    c.rkey = match.group(t++);
-    c.requesturi = match.group(t++);
-    // System.err.println(c.requesturi);
-    /*
-     * // Zemanta specific data extractor try { Matcher m2 =
-     * regexrid.matcher(c.requesturi); m2.find(); c.rid = m2.group(1); } catch
-     * (Exception e) { c.rid = null; }
-     */
-    c.httpstatus = toInt(match.group(t++));
-    c.errorcode = match.group(t++);
-    c.bytessent = toInt(match.group(t++));
-    c.objsize = toInt(match.group(t++));
-    c.totaltime = toInt(match.group(t++));
-    c.turnaroundtime = toInt(match.group(t++));
-    c.referer = match.group(t++);
-    c.useragent = match.group(t++);
-
-    return (c);
+    this // Return the S3LogObject
   }
 
   // -------------------------------------------------------------------------------------------------------------------
@@ -107,27 +116,15 @@ object S3LogObject {
    */
   private def dehyphenate(s: String): String =,
     if (s matches "-") null else s
-}
 
-/**
- * S3LogObject
- */
-case class S3LogObject(
-  bucketowner: String,
-  bucketname: String,
-  rdatetime: String,
-  rdatetimeepoch: Long, // TODO: implement this
-  rip: String,
-  requester: String,
-  requestid: String,
-  operation: String,
-  rkey: String,
-  requesturi: String,
-  httpstatus: Integer,
-  errorcode: String,
-  bytessent: Integer,
-  objsize: Integer,
-  totaltime: Integer,
-  turnaroundtime: Integer,
-  referer: String,
-  useragent: String)
+  /**
+   * Explicit conversion to turn a "-" String into null.
+   * Useful for "-" URIs (URI is set to "-" if e.g. S3 is accessed
+   * from a file:// protocol).
+   *
+   * @param dt The datetime in String format
+   * @return The datetime in Hive-friendly Long, seconds since epoch 
+   */
+  private def sinceEpoch(dt: String): Long =
+    cfDateFormat.parse(dt).getTime() / 1000
+}
