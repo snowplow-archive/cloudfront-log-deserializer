@@ -20,12 +20,14 @@ object Dependencies {
   object V {
     val hadoop    = "0.20.2"    
     val hive      = "0.8.1"
+    val logging   = "1.1.1"
     val specs2    = "1.8"
   }
 
   object Libraries {
     val hadoop      = "org.apache.hadoop"          %  "hadoop-core"          % V.hadoop
     val hive        = "org.apache.hive"            %  "hive-common"          % V.hive
+    val logging     = "commons-logging"            %  "commons-logging"      % V.logging
     val specs2      = "org.specs2"                 %% "specs2"               % V.specs2      % "test"
   }
 }

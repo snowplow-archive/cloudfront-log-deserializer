@@ -44,8 +44,8 @@ class S3LogDeserializer implements Deserializer @throws(classOf[SerDeException])
   // Default constructor
   // -------------------------------------------------------------------------------------------------------------------
 
-	// Setup logging
-	private val log: Log = LogFactory.getLog(classOf[S3LogDeserializer].getName())
+  // Setup logging
+  private val log: Log = LogFactory.getLog(classOf[S3LogDeserializer].getName())
 
   // Our mutable object inspector
   private var inspector: ObjectInspector = _
@@ -86,18 +86,18 @@ class S3LogDeserializer implements Deserializer @throws(classOf[SerDeException])
   @throws classOf[SerDeException]
   def deserialize(blob: Writable): Object = {
   
-  	// Extract the String value from the blob
+    // Extract the String value from the blob
     val row: String = blob match {
-  		case b:BytesWritable =>
-  			try {
-	  			Text.decode(b.getBytes(), 0, b.getLength())
-		  	} catch cce:CharacterCodingException => throw new SerDeException(cce)
-		  case t:Text => t.toString()
-		  case _ => throw new SerDeException("%s expects blob to be Text or BytesWritable".format(this.getClass.getName), e)
-  	}
+      case b:BytesWritable =>
+        try {
+          Text.decode(b.getBytes(), 0, b.getLength())
+        } catch cce:CharacterCodingException => throw new SerDeException(cce)
+      case t:Text => t.toString()
+      case _ => throw new SerDeException("%s expects blob to be Text or BytesWritable".format(this.getClass.getName), e)
+    }
 
-  	// Construct the S3LogObject from the row data
-  	S3LogObject(row)
+    // Construct the S3LogObject from the row data
+    S3LogObject(row)
   }
 
   // -------------------------------------------------------------------------------------------------------------------

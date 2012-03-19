@@ -30,6 +30,7 @@ object S3LogDeserializerBuild extends Build {
       libraryDependencies ++= Seq(
         Libraries.hadoop,
         Libraries.hive,
+        Libraries.logging,
         Libraries.specs2
       )
     )
