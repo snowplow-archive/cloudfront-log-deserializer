@@ -31,21 +31,21 @@ import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector
 import org.apache.hadoop.hive.serde2.objectinspector.{ObjectInspectorFactory => OIF}
 import org.apache.hadoop.hive.serde2.objectinspector.ReflectionStructObjectInspector
 import org.apache.hadoop.hive.serde2.objectinspector.StructField
-import org.apache.hadoop.io.{BytesWritable, Test, Writable}
+import org.apache.hadoop.io.{BytesWritable, Text, Writable}
 
 /**
  * CfLogDeserializer reads CloudFront download distribution file access log data into Hive.
  * 
  * For documentation please see the introductory README.md in the project root.
  */
-class CfLogDeserializer implements Deserializer @throws(classOf[SerDeException]) {
+class CfLogDeserializer extends Deserializer @throws(classOf[SerDeException]) {
 
   // -------------------------------------------------------------------------------------------------------------------
   // Default constructor
   // -------------------------------------------------------------------------------------------------------------------
 
   // Setup logging
-  private val log: Log = LogFactory.getLog(classOf[S3LogDeserializer].getName())
+  private val log: Log = LogFactory.getLog(classOf[CfLogDeserializer].getName())
 
   // We'll initialize our object inspector below
   private var inspector: ObjectInspector = _
@@ -64,10 +64,10 @@ class CfLogDeserializer implements Deserializer @throws(classOf[SerDeException])
    * @param tbl Table properties
    * @throws SerDeException For any exception during initialization
    */
-  @throws classOf[SerDeException]
+  @throws(classOf[SerDeException])
   override def initialize(conf: Configuration, tbl: Properties) {
 
-    inspector = OIF.getReflectionObjectInspector(classOf[S3LogTable], OIF.ObjectInspectorOptions.JAVA)
+    inspector = OIF.getReflectionObjectInspector(classOf[CfLogStruct], OIF.ObjectInspectorOptions.JAVA)
     log.debug("%s initialized".format(this.getClass.getName))
   }
 
@@ -86,7 +86,7 @@ class CfLogDeserializer implements Deserializer @throws(classOf[SerDeException])
    * @return A Java object representing the contents in the blob.
    * @throws SerDeException For any exception during initialization
    */
-  @throws classOf[SerDeException]
+  @throws(classOf[SerDeException])
   def deserialize(blob: Writable): Object = {
   
     // Extract the String value from the blob
@@ -94,9 +94,11 @@ class CfLogDeserializer implements Deserializer @throws(classOf[SerDeException])
       case b:BytesWritable =>
         try {
           Text.decode(b.getBytes(), 0, b.getLength())
-        } catch cce:CharacterCodingException => throw new SerDeException(cce)
+        } catch {
+          case cce:CharacterCodingException => throw new SerDeException(cce)
+        }
       case t:Text => t.toString()
-      case _ => throw new SerDeException("%s expects blob to be Text or BytesWritable".format(this.getClass.getName), e)
+      case _ => throw new SerDeException("%s expects blob to be Text or BytesWritable".format(this.getClass.getName))
     }
 
     // Construct and return the S3LogObject from the row data
@@ -122,6 +124,6 @@ class CfLogDeserializer implements Deserializer @throws(classOf[SerDeException])
    * @return The ObjectInspector for this Deserializer 
    * @throws SerDeException For any exception during initialization
    */
-  @throws SerDeException
+  @throws(classOf[SerDeException])
   def getObjectInspector(): ObjectInspector = inspector
 }

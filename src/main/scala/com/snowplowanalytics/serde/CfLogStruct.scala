@@ -14,14 +14,18 @@ package com.snowplowanalytics.serde
 
 // Java
 import java.text.SimpleDateFormat
+import java.lang.{Integer => JInteger}
 
 // Scala
 import scala.util.matching.Regex
 
+// Hive
+import org.apache.hadoop.hive.serde2.SerDeException
+
 /**
  * CfLogStruct represents the Hive struct for a row in a CloudFront access log.
  *
- * Contains a parse() method to perform an update in place for this instance
+ * Contains a parse() method to perform an update-in-place for this instance
  * based on the current row's contents.
  *
  * Constructor is empty because we do updates-in-place for performance reasons.
@@ -33,17 +37,17 @@ class CfLogStruct() {
   // Mutable properties for this Hive struct
   // -------------------------------------------------------------------------------------------------------------------
 
-  var datetime: Long
-  var edgelocation: String
-  var bytessent: Integer 
-  var ipaddress: String
-  var operation: String
-  var domain: String
-  var objct: String
-  var httpstatus: Integer
-  var referrer: String
-  var useragent: String
-  var querystring: String
+  var datetime: Long = _
+  var edgelocation: String = _
+  var bytessent: JInteger = _ 
+  var ipaddress: String = _
+  var operation: String = _
+  var domain: String = _
+  var objct: String = _
+  var httpstatus: JInteger = _
+  var referrer: String = _
+  var useragent: String = _
+  var querystring: String = _
   // var querymap: Map[String, String] TODO add this
 
   // -------------------------------------------------------------------------------------------------------------------
@@ -53,18 +57,18 @@ class CfLogStruct() {
   // Define the regular expression for extracting the fields
   // Adapted from Amazon's own cloudfront-loganalyzer.tgz
   private val w = "[\\s]+" // Whitespace regex
-  private val CfRegex = new Regex("([\\S]+"   // Date          date
-                            + w + "([\\S]+)"  // Time          time
-                            + w + "([\\S]+)"  // EdgeLocation  x-edge-location
-                            + w + "([\\S]+)"  // BytesSent     sc-bytes
-                            + w + "([\\S]+)"  // IPAddress     c-ip
-                            + w + "([\\S]+)"  // Operation     cs-method
-                            + w + "([\\S]+)"  // Domain        cs(Host)
-                            + w + "([\\S]+)"  // Object        cs-uri-stem
-                            + w + "([\\S]+)"  // HttpStatus    sc-status
-                            + w + "([\\S]+)"  // Referrer      cs(Referer)
-                            + w + "([\\S]+)"  // UserAgent     cs(User Agent)
-                            + w + "(.+)")     // Querystring   cs-uri-query
+  private val CfRegex = new Regex("([\\S]+"   // Date          / date
+                            + w + "([\\S]+)"  // Time          / time
+                            + w + "([\\S]+)"  // EdgeLocation  / x-edge-location
+                            + w + "([\\S]+)"  // BytesSent     / sc-bytes
+                            + w + "([\\S]+)"  // IPAddress     / c-ip
+                            + w + "([\\S]+)"  // Operation     / cs-method
+                            + w + "([\\S]+)"  // Domain        / cs(Host)
+                            + w + "([\\S]+)"  // Object        / cs-uri-stem
+                            + w + "([\\S]+)"  // HttpStatus    / sc-status
+                            + w + "([\\S]+)"  // Referrer      / cs(Referer)
+                            + w + "([\\S]+)"  // UserAgent     / cs(User Agent)
+                            + w + "(.+)")     // Querystring   / cs-uri-query
 
   // To handle the CloudFront DateTime format
   private val cfDateFormat = new SimpleDateFormat("dd/MMM/yyyy:hh:mm:ss ZZZZZ")
@@ -82,15 +86,15 @@ class CfLogStruct() {
    * @return This struct with all values updated
    * @throws SerDeException For any exception during parsing
    */
-  @throws classOf[SerDeException]
-  def parse(row: String): Object {
+  @throws(classOf[SerDeException])
+  def parse(row: String): Object = {
     
     // Check our row is kosher
     row match {
-      case CfRegex(date, time, edgelocation, bytes, ipaddress, operation, domain, objct, httpstatus, referrer, useragent, querystring) =>
+      case CfRegex(date, time, edgelocation, bytessent, ipaddress, operation, domain, objct, httpstatus, referrer, useragent, querystring) =>
         this.datetime = sinceEpoch(date + " " + time)
         this.edgelocation = edgelocation
-        this.bytes = bytes
+        this.bytessent = bytessent
         this.ipaddress = ipaddress
         this.operation = operation
         this.domain = domain
@@ -100,7 +104,7 @@ class CfLogStruct() {
         this.useragent = useragent
         this.querystring = querystring
         // TODO: build the querymap too
-      case _ => throw new SerDeException("CloudFront regexp did not match: %s".format(row), e)
+      case _ => throw new SerDeException("CloudFront regexp did not match: %s".format(row))
     }
 
     this // Return the CfLogStruct
@@ -117,7 +121,7 @@ class CfLogStruct() {
    * @param s The String to check
    * @return The Integer, or null if the String was "-" 
    */
-  private implicit def string2Integer(s: String): Integer =,
+  private implicit def string2JInteger(s: String): JInteger =
     if (s matches "-") null else Integer.valueOf(s)
 
   /**
@@ -128,7 +132,7 @@ class CfLogStruct() {
    * @param s The String to check
    * @return The original String, or null if the String was "-" 
    */
-  private def nullifyHyphen(s: String): String =,
+  private def nullifyHyphen(s: String): String =
     if (s matches "-") null else s
 
   /**

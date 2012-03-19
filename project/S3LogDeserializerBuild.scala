@@ -13,7 +13,7 @@
 import sbt._
 import Keys._
 
-object S3LogDeserializerBuild extends Build {
+object CfLogDeserializerBuild extends Build {
 
   import Dependencies._
   import BuildSettings._
@@ -24,12 +24,13 @@ object S3LogDeserializerBuild extends Build {
   }
 
   // Define our project, with basic project information and library dependencies
-  lazy val project = Project("amazon-s3log-serde", file("."))
+  lazy val project = Project("cloudfront-log-deserializer", file("."))
     .settings(buildSettings: _*)
     .settings(
       libraryDependencies ++= Seq(
         Libraries.hadoop,
         Libraries.hive,
+        Libraries.serde,
         Libraries.logging,
         Libraries.specs2
       )

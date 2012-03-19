@@ -19,7 +19,7 @@ object BuildSettings {
   lazy val basicSettings = Seq[Setting[_]](
     organization  := "Orderly Ltd",
     version       := "0.1",
-    description   := "A Hive SerDe for processing Amazon S3 and CloudFront access logs",
+    description   := "A Hive Deserializer for CloudFront access logs (download distribution files only)",
     scalaVersion  := "2.9.1",
     scalacOptions := Seq("-deprecation", "-encoding", "utf8"),
     resolvers     ++= Dependencies.resolutionRepos
