@@ -6,7 +6,7 @@ cloudfront-log-deserializer is a Deserializer to import Amazon Web Services' Clo
 
 This Deserializer serves as the basis for the SnowPlow-specific Deserializers found [in the SnowPlow project] [snowplowserdes] but should be generally useful for anyone wanting to analyse CloudFront access log files in Hive, whether SnowPlow users or not.
 
-cloudfront-log-deserializer is written in Scala and is [available] [downloads] from GitHub as a minified jarfile. Currently it only supports CloudFront's [download distribution file format] [[ddformat] (not the streaming file format).
+cloudfront-log-deserializer is written in Scala and is [available] [downloads] from GitHub as a minified jarfile. Currently it only supports CloudFront's [download distribution file format] [ddformat] (not the streaming file format).
 
 ## The CloudFront access log format
 
@@ -14,20 +14,20 @@ Amazon Web Services' CloudFront CDN service supports logging for all access to f
 
 The access log files for a download distribution contain the following fields running left-to-right:
 
-| **Field**       | **Description (taken from Amazon)**                                                                                                                                                           |
-|----------------:|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| date            | The date (UTC) on which the event occurred, e.g. 2009-03-10                                                                                                                                   |
-| time            | Time when the server finished processing the request (UTC), e.g. 01:42:39                                                                                                                     | 
-| x-edge-location | The edge location that served the request, e.g. DFW3                                                                                                                                          |
-| sc-bytes        | Server to client bytes, e.g. 1045619                                                                                                                                                          |
-| c-ip            | Client IP, e.g. 192.0.2.183                                                                                                                                                                   |
-| cs-method       | HTTP access method, e.g. GET                                                                                                                                                                  |
-| cs(Host)        | DNS name (the CloudFront distribution name specified in the request). If you made the request to a CNAME, the DNS name field will contain the underlying distribution DNS name, not the CNAME | 
-| cs-uri-stem     | URI stem, e.g. /images/daily-ad.jpg                                                                                                                                                           |
-| sc-status       | HTTP status code, e.g. 200                                                                                                                                                                    |
-| cs(Referer)     | The referrer, or a single dash (-) if there is no referrer                                                                                                                                    |
-| cs(User Agent)  | The user agent                                                                                                                                                                                |
-| cs-uri-query    | The querystring portion of the requested URI, or a single dash (-) if none. Max length is 8kB and encoding standard is RFC 1738 |
+| **Field**         | **Description (taken from Amazon)**                                                                                                                                                           |
+|------------------:|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `date `           | The date (UTC) on which the event occurred, e.g. 2009-03-10                                                                                                                                   |
+| `time`            | Time when the server finished processing the request (UTC), e.g. 01:42:39                                                                                                                     | 
+| `x-edge-location` | The edge location that served the request, e.g. DFW3                                                                                                                                          |
+| `sc-bytes`        | Server to client bytes, e.g. 1045619                                                                                                                                                          |
+| `c-ip`            | Client IP, e.g. 192.0.2.183                                                                                                                                                                   |
+| `cs-method`       | HTTP access method, e.g. GET                                                                                                                                                                  |
+| `cs(Host)`        | DNS name (the CloudFront distribution name specified in the request). If you made the request to a CNAME, the DNS name field will contain the underlying distribution DNS name, not the CNAME | 
+| `cs-uri-stem`     | URI stem, e.g. /images/daily-ad.jpg                                                                                                                                                           |
+| `sc-status`       | HTTP status code, e.g. 200                                                                                                                                                                    |
+| `cs(Referer)`     | The referrer, or a single dash (-) if there is no referrer                                                                                                                                    |
+| `cs(User Agent)`  | The user agent                                                                                                                                                                                |
+| `cs-uri-query`    | The querystring portion of the requested URI, or a single dash (-) if none. Max length is 8kB and encoding standard is RFC 1738 |
 
 For more details on this file format (or indeed the streaming distribution file format), please see the Amazon documentation on [Access Logs] [awslogdocs].
 
