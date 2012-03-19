@@ -15,7 +15,7 @@ Amazon Web Services' S3 and CloudFront access logs both use the [W3C extended fo
 * TODO
 * TODO
 * TODO
-* TODO
+* TODO (or hyphen for null)
 * TODO
 
 Fields are tab-separated, with multi-part fields (e.g. user agent) enclosed in double quotes.

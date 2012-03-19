@@ -120,7 +120,7 @@ class S3LogObject() {
    * @param s The String to check
    * @return The original String, or null if the String was "-" 
    */
-  private def dehyphenate(s: String): String =,
+  private def nullifyHyphen(s: String): String =,
     if (s matches "-") null else s
 
   /**
