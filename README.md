@@ -1,4 +1,4 @@
-# Amazon S3 and CloudFront access log Deserializer for Hive
+# Hive Deserializer for Amazon S3 and CloudFront Access Logs
 
 ## Introduction
 
