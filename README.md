@@ -2,7 +2,7 @@
 
 ## Introduction
 
-amazon-s3log-serde is a Deserializer to prepare Amazon Web Services' S3 and CloudFront access logs for analysis using [Apache Hive] [hive].
+amazon-s3log-serde is a Deserializer to import Amazon Web Services' S3 and CloudFront access logs into [Apache Hive] [hive] ready for analysis.
 
 This Deserializer serves as the basis for the SnowPlow-specific Deserializers found [in the SnowPlow project] [snowplowserdes] but should be generally useful for anyone wanting to analyse AWS access log files in Hive, whether SnowPlow users or not.
 
@@ -35,9 +35,10 @@ Here is the Hive table definition in full:
 
 ## Differences from S3LogDeserializer
 
-This Deserializer has slightly different behaviour from the [S3LogDeserializer] [s3logdeserializer] which comes as part of the Apache Hive project:
+This Deserializer differs in a few subtle but important ways from the [S3LogDeserializer] [s3logdeserializer] which comes as part of the Apache Hive project:
 
 * TODO
+* This Deserializer has up-to-date documentation available (this file!)
 
 ## Usage
 
@@ -65,3 +66,4 @@ limitations under the License.
 [license]: http://www.apache.org/licenses/LICENSE-2.0
 [w3cformat]: http://www.w3.org/TR/WD-logfile.html 
 [downloads]: https://github.com/snowplow/amazon-s3log-serde/downloads
+[s3logdeserializer]: http://javasourcecode.org/html/open-source/hive/hive-0.7.1/org/apache/hadoop/hive/contrib/serde2/s3/S3LogDeserializer.html
