@@ -6,7 +6,7 @@ amazon-s3log-serde is a Deserializer to import Amazon Web Services' S3 and Cloud
 
 This Deserializer serves as the basis for the SnowPlow-specific Deserializers found [in the SnowPlow project] [snowplowserdes] but should be generally useful for anyone wanting to analyse AWS access log files in Hive, whether SnowPlow users or not.
 
-amazon-s3log-serde is written in Scala and available as a minified jar (see the [Downloads] [downloads] menu for use in the Hive console. It has slightly different functionality from the [S3LogDeserializer] [s3logdeserializer] which comes bundled with Hive (the differences are detailed below).
+amazon-s3log-serde is written in Scala and is [available] [downloads] from GitHub as a minified jarfile. It has slightly different functionality from the [S3LogDeserializer] [s3logdeserializer] which comes bundled with Hive (the differences are detailed below).
 
 ## The AWS access log format
 
