@@ -19,7 +19,7 @@ import java.text.SimpleDateFormat
 import scala.util.matching.Regex
 
 /**
- * S3LogObject represents the Hive struct for a row in a CloudFront access log.
+ * CfLogStruct represents the Hive struct for a row in a CloudFront access log.
  *
  * Contains a parse() method to perform an update in place for this instance
  * based on the current row's contents.
@@ -27,7 +27,7 @@ import scala.util.matching.Regex
  * Constructor is empty because we do updates-in-place for performance reasons.
  * An immutable Scala case class would be nice but fear it would be s-l-o-w
  */
-class S3LogObject() {
+class CfLogStruct() {
 
   // -------------------------------------------------------------------------------------------------------------------
   // Mutable properties for this Hive struct
@@ -41,7 +41,10 @@ class S3LogObject() {
   var domain: String
   var objct: String
   var httpstatus: Integer
+  var referrer: String
   var useragent: String
+  var querystring: String
+  // var querymap: Map[String, String] TODO add this
 
   // -------------------------------------------------------------------------------------------------------------------
   // Static configuration
@@ -50,16 +53,18 @@ class S3LogObject() {
   // Define the regular expression for extracting the fields
   // Adapted from Amazon's own cloudfront-loganalyzer.tgz
   private val w = "[\\s]+" // Whitespace regex
-  private val CfRegex = new Regex("([\\S]+[\\s]+[\\S]+)"  // DateTime
-                            + w + "([\\S]+)"              // EdgeLocation
-                            + w + "([\\S]+)"              // ByteSent
-                            + w + "([\\S]+)"              // IPAddress
-                            + w + "([\\S]+)"              // Operation
-                            + w + "([\\S]+)"              // Domain
-                            + w + "([\\S]+)"              // Object
-                            + w + "([\\S]+)"              // HttpStatus
-                            + w + "[\\S]+"                //   (ignore junk)
-                            + w + "(.+)")                 // UserAgent
+  private val CfRegex = new Regex("([\\S]+"   // Date          date
+                            + w + "([\\S]+)"  // Time          time
+                            + w + "([\\S]+)"  // EdgeLocation  x-edge-location
+                            + w + "([\\S]+)"  // BytesSent     sc-bytes
+                            + w + "([\\S]+)"  // IPAddress     c-ip
+                            + w + "([\\S]+)"  // Operation     cs-method
+                            + w + "([\\S]+)"  // Domain        cs(Host)
+                            + w + "([\\S]+)"  // Object        cs-uri-stem
+                            + w + "([\\S]+)"  // HttpStatus    sc-status
+                            + w + "([\\S]+)"  // Referrer      cs(Referer)
+                            + w + "([\\S]+)"  // UserAgent     cs(User Agent)
+                            + w + "(.+)")     // Querystring   cs-uri-query
 
   // To handle the CloudFront DateTime format
   private val cfDateFormat = new SimpleDateFormat("dd/MMM/yyyy:hh:mm:ss ZZZZZ")
@@ -71,7 +76,7 @@ class S3LogObject() {
   /**
    * Parses the input row String into a Java object.
    * For performance reasons this works in-place updating the fields
-   * within this S3LogObject, rather than creating a new one.
+   * within this CfLogStruct, rather than creating a new one.
    * 
    * @param row The raw String containing the row contents
    * @return This struct with all values updated
@@ -82,20 +87,23 @@ class S3LogObject() {
     
     // Check our row is kosher
     row match {
-      case CfRegex(dt, edg, byt, ip, op, dmn, obj, sts, _, ua) =>
-        this.datetime = sinceEpoch dt
-        this.edgelocation = edg
-        this.bytes = byt
-        this.ipaddress = ip
-        this.operation = op
-        this.domain = dmn
-        this.objct = obj
-        this.httpstatus = sts
-        this.useragent = ua
+      case CfRegex(date, time, edgelocation, bytes, ipaddress, operation, domain, objct, httpstatus, referrer, useragent, querystring) =>
+        this.datetime = sinceEpoch(date + " " + time)
+        this.edgelocation = edgelocation
+        this.bytes = bytes
+        this.ipaddress = ipaddress
+        this.operation = operation
+        this.domain = domain
+        this.objct = objct
+        this.httpstatus = httpstatus
+        this.referrer = referrer
+        this.useragent = useragent
+        this.querystring = querystring
+        // TODO: build the querymap too
       case _ => throw new SerDeException("CloudFront regexp did not match: %s".format(row), e)
     }
 
-    this // Return the S3LogObject
+    this // Return the CfLogStruct
   }
 
   // -------------------------------------------------------------------------------------------------------------------

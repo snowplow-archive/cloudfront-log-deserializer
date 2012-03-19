@@ -34,11 +34,11 @@ import org.apache.hadoop.hive.serde2.objectinspector.StructField
 import org.apache.hadoop.io.{BytesWritable, Test, Writable}
 
 /**
- * S3LogDeserializer reads AWS S3 and CloudFront access log data into Hive.
+ * CfLogDeserializer reads CloudFront download distribution file access log data into Hive.
  * 
  * For documentation please see the introductory README.md in the project root.
  */
-class S3LogDeserializer implements Deserializer @throws(classOf[SerDeException]) {
+class CfLogDeserializer implements Deserializer @throws(classOf[SerDeException]) {
 
   // -------------------------------------------------------------------------------------------------------------------
   // Default constructor
@@ -47,18 +47,18 @@ class S3LogDeserializer implements Deserializer @throws(classOf[SerDeException])
   // Setup logging
   private val log: Log = LogFactory.getLog(classOf[S3LogDeserializer].getName())
 
-  // Our mutable object inspector
+  // We'll initialize our object inspector below
   private var inspector: ObjectInspector = _
 
   // For performance reasons we reuse the same object to deserialize all of our rows
-  private val struct: S3LogObject = new S3LogObject()
+  private val struct: CfLogStruct = new CfLogStruct()
 
   // -------------------------------------------------------------------------------------------------------------------
   // Initializer
   // -------------------------------------------------------------------------------------------------------------------
 
   /**
-   * Initialize the S3LogDeserializer.
+   * Initialize the CfLogDeserializer.
    *
    * @param conf System properties
    * @param tbl Table properties
@@ -68,7 +68,7 @@ class S3LogDeserializer implements Deserializer @throws(classOf[SerDeException])
   override def initialize(conf: Configuration, tbl: Properties) {
 
     inspector = OIF.getReflectionObjectInspector(classOf[S3LogTable], OIF.ObjectInspectorOptions.JAVA)
-    log.debug("%s initialized".format(getClass().getName()))
+    log.debug("%s initialized".format(this.getClass.getName))
   }
 
   // -------------------------------------------------------------------------------------------------------------------
