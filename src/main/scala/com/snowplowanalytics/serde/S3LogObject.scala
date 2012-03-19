@@ -12,68 +12,37 @@
  */
 package com.snowplowanalytics.serde
 
-/**
- * S3LogObject
- */
-class S3LogObject {
+// Java
+import java.text.SimpleDateFormat
 
-  public String bucketowner;
-  public String bucketname;
-  public String rdatetime;
-  // public Long rdatetimeepoch; // The format Hive understands by default,
-  // should we convert?
-  public String rip;
-  public String requester;
-  public String requestid;
-  public String operation;
-  public String rkey;
-  public String requesturi;
-  public Integer httpstatus;
-  public String errorcode;
-  public Integer bytessent;
-  public Integer objsize;
-  public Integer totaltime;
-  public Integer turnaroundtime;
-  public String referer;
-  public String useragent;
-  // public String rid; // Specific Zemanta use
 
+object S3LogObject {
+  
   // -------------------------------------------------------------------------------------------------------------------
   // Static configuration
   // -------------------------------------------------------------------------------------------------------------------
 
   // Define the regular expression for extracting the fields
-  // This regex has to be a bit lax in order to compensate for lack of any escaping
-  // done by Amazon S3, e.g. useragent string can have double quotes inside
-  static Pattern regexpat = Pattern
-      .compile("(\\S+) (\\S+) \\[(.*?)\\] (\\S+) (\\S+) (\\S+) (\\S+) (\\S+) \"(.+)\" (\\S+) (\\S+) (\\S+) (\\S+) (\\S+) (\\S+) \"(.*)\" \"(.*)\"");
-  // static Pattern regexrid = Pattern.compile("x-id=([-0-9a-f]{36})");
-  // static SimpleDateFormat dateparser = new
-  // SimpleDateFormat("dd/MMM/yyyy:hh:mm:ss ZZZZZ");
-
   // Adapted from Amazon's own cloudfront-loganalyzer.tgz
-  Fields cloudFrontFields = new Fields(Columns.DateTime, Columns.EdgeLocation, Columns.Bytes, Columns.IPAddress, Columns.Operation, Columns.Domain, Columns.Object, Columns.HTTPResponse, Columns.UserAgent);
-  String w = "[\\s]+"; // whitespace regex
-  String cfRegex = "([\\S]+[\\s]+[\\S]+)"  // DateTime
-             + w + "([\\S]+)"              // EdgeLocation
-             + w + "([\\S]+)"              // Bytes
-             + w + "([\\S]+)"              // IPAddress
-             + w + "([\\S]+)"              // Operation
-             + w + "([\\S]+)"              // Domain
-             + w + "([\\S]+)"              // Object
-             + w + "([\\S]+)"              // HttpResponse
-             + w + "[\\S]+"                //   (ignore junk)
-             + w + "(.+)";                 // UserAgent
-  int groups[] = {1,2,3,4,5,6,7,8,9};
-  RegexParser regexParser = new RegexParser(cloudFrontFields, cfRegex, groups);
-  Pipe pipe = new Pipe("head");
+  val w = "[\\s]+" // Whitespace regex
+  val cfRegex = "([\\S]+[\\s]+[\\S]+)"  // DateTime
+          + w + "([\\S]+)"              // EdgeLocation
+          + w + "([\\S]+)"              // Bytes
+          + w + "([\\S]+)"              // IPAddress
+          + w + "([\\S]+)"              // Operation
+          + w + "([\\S]+)"              // Domain
+          + w + "([\\S]+)"              // Object
+          + w + "([\\S]+)"              // HttpResponse
+          + w + "[\\S]+"                //   (ignore junk)
+          + w + "(.+)"                  // UserAgent
 
-
+  // To handle the CloudFront DateTime format
+  val cfDateFormat = new SimpleDateFormat("dd/MMM/yyyy:hh:mm:ss ZZZZZ")
 
   /**
    *
    */
-  public static Object deserialize(S3LogStruct c, String row) throws Exception {
+  static Object deserialize(S3LogStruct c, String row) throws Exception {
     Matcher match = regexpat.matcher(row);
     int t = 1;
     try {
@@ -125,7 +94,7 @@ class S3LogObject {
    * @param s The String to check
    * @return The Integer, or null if the String was "-" 
    */
-  private implicit def string2Integer(s: String): Integer =
+  private implicit def string2Integer(s: String): Integer =,
     if (s matches "-") null else Integer.valueOf(s)
 
   /**
@@ -136,7 +105,29 @@ class S3LogObject {
    * @param s The String to check
    * @return The original String, or null if the String was "-" 
    */
-  private def dehyphenate(s: String): String =
+  private def dehyphenate(s: String): String =,
     if (s matches "-") null else s
-
 }
+
+/**
+ * S3LogObject
+ */
+case class S3LogObject(
+  bucketowner: String,
+  bucketname: String,
+  rdatetime: String,
+  rdatetimeepoch: Long, // TODO: implement this
+  rip: String,
+  requester: String,
+  requestid: String,
+  operation: String,
+  rkey: String,
+  requesturi: String,
+  httpstatus: Integer,
+  errorcode: String,
+  bytessent: Integer,
+  objsize: Integer,
+  totaltime: Integer,
+  turnaroundtime: Integer,
+  referer: String,
+  useragent: String)
