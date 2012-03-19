@@ -19,7 +19,13 @@ import java.text.SimpleDateFormat
 import scala.util.matching.Regex
 
 /**
- * S3LogObject
+ * S3LogObject represents the Hive struct for a row in a CloudFront access log.
+ *
+ * Contains a parse() method to perform an update in place for this instance
+ * based on the current row's contents.
+ *
+ * Constructor is empty because we do updates-in-place for performance reasons.
+ * An immutable Scala case class would be nice but fear it would be s-l-o-w
  */
 class S3LogObject() {
 
@@ -69,7 +75,7 @@ class S3LogObject() {
    * 
    * @param row The raw String containing the row contents
    * @return This struct with all values updated
-   * @throws SerDeException For any exception during initialization
+   * @throws SerDeException For any exception during parsing
    */
   @throws classOf[SerDeException]
   def parse(row: String): Object {
@@ -77,7 +83,7 @@ class S3LogObject() {
     // Check our row is kosher
     row match {
       case CfRegex(dt, edg, byt, ip, op, dmn, obj, sts, _, ua) =>
-        this.datetime = sinceEpoch(dt)
+        this.datetime = sinceEpoch dt
         this.edgelocation = edg
         this.bytes = byt
         this.ipaddress = ip
@@ -123,7 +129,7 @@ class S3LogObject() {
    * from a file:// protocol).
    *
    * @param dt The datetime in String format
-   * @return The datetime in Hive-friendly Long, seconds since epoch 
+   * @return The datetime in Hive-friendly seconds since epoch Long
    */
   private def sinceEpoch(dt: String): Long =
     cfDateFormat.parse(dt).getTime() / 1000
