@@ -14,7 +14,7 @@ Amazon Web Services' CloudFront CDN service supports logging for all access to f
 
 The access log files for a download distribution contain the following fields running left-to-right:
 
-| **Field**         | **Description (taken from Amazon)**                                                                                                                                                           |
+| **Field**         | **Description**                                                                                                                                                                               |
 |------------------:|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `date `           | The date (UTC) on which the event occurred, e.g. 2009-03-10                                                                                                                                   |
 | `time`            | Time when the server finished processing the request (UTC), e.g. 01:42:39                                                                                                                     | 
