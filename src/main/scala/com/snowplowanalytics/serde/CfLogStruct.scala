@@ -15,6 +15,7 @@ package com.snowplowanalytics.serde
 // Java
 import java.text.SimpleDateFormat
 import java.lang.{Integer => JInteger}
+import java.lang.{Long => JLong}
 
 // Scala
 import scala.util.matching.Regex
@@ -37,7 +38,7 @@ class CfLogStruct() {
   // Mutable properties for this Hive struct
   // -------------------------------------------------------------------------------------------------------------------
 
-  var datetime: Long = _
+  var datetime: JLong = _
   var edgelocation: String = _
   var bytessent: JInteger = _ 
   var ipaddress: String = _
@@ -143,6 +144,6 @@ class CfLogStruct() {
    * @param dt The datetime in String format
    * @return The datetime in Hive-friendly seconds since epoch Long
    */
-  private def sinceEpoch(dt: String): Long =
+  private def sinceEpoch(dt: String): JLong =
     cfDateFormat.parse(dt).getTime() / 1000
 }
