@@ -10,17 +10,15 @@
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
  */
-package com.snowplowanalytics.serde
+package com.snowplowanalytics.serde;
 
 // Java
-import java.text.SimpleDateFormat
-import java.lang.{Integer => JInteger}
-
-// Scala
-import scala.util.matching.Regex
+import java.text.SimpleDateFormat;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 // Hive
-import org.apache.hadoop.hive.serde2.SerDeException
+import org.apache.hadoop.hive.serde2.SerDeException;
 
 /**
  * CfLogStruct represents the Hive struct for a row in a CloudFront access log.
@@ -37,17 +35,17 @@ class CfLogStruct() {
   // Mutable properties for this Hive struct
   // -------------------------------------------------------------------------------------------------------------------
 
-  var dt: String = _
-  var edgelocation: String = _
-  var bytessent: JInteger = _ 
-  var ipaddress: String = _
-  var operation: String = _
-  var domain: String = _
-  var objct: String = _
-  var httpstatus: JInteger = _
-  var referrer: String = _
-  var useragent: String = _
-  var querystring: String = _
+  public String dt;
+  public String edgelocation;
+  public Integer bytessent; 
+  public String ipaddress;
+  public String operation;
+  public String domain;
+  public String objct;
+  public Integer httpstatus;
+  public String referrer;
+  public String useragent;
+  public String querystring;
   // var querymap: Map[String, String] TODO add this
 
   // -------------------------------------------------------------------------------------------------------------------
@@ -56,23 +54,23 @@ class CfLogStruct() {
 
   // Define the regular expression for extracting the fields
   // Adapted from Amazon's own cloudfront-loganalyzer.tgz
-  private val w = "[\\s]+" // Whitespace regex
-  private val CfRegex = new Regex("([\\S]+"   // Date          / date
-                            + w + "([\\S]+)"  // Time          / time
-                            + w + "([\\S]+)"  // EdgeLocation  / x-edge-location
-                            + w + "([\\S]+)"  // BytesSent     / sc-bytes
-                            + w + "([\\S]+)"  // IPAddress     / c-ip
-                            + w + "([\\S]+)"  // Operation     / cs-method
-                            + w + "([\\S]+)"  // Domain        / cs(Host)
-                            + w + "([\\S]+)"  // Object        / cs-uri-stem
-                            + w + "([\\S]+)"  // HttpStatus    / sc-status
-                            + w + "([\\S]+)"  // Referrer      / cs(Referer)
-                            + w + "([\\S]+)"  // UserAgent     / cs(User Agent)
-                            + w + "(.+)")     // Querystring   / cs-uri-query
+  private static final String w = "[\\s]+"; // Whitespace regex
+  private static final Pattern cfRegex = Pattern.compile("([\\S]+)"  // Date          / date
+                                                   + w + "([\\S]+)"  // Time          / time
+                                                   + w + "([\\S]+)"  // EdgeLocation  / x-edge-location
+                                                   + w + "([\\S]+)"  // BytesSent     / sc-bytes
+                                                   + w + "([\\S]+)"  // IPAddress     / c-ip
+                                                   + w + "([\\S]+)"  // Operation     / cs-method
+                                                   + w + "([\\S]+)"  // Domain        / cs(Host)
+                                                   + w + "([\\S]+)"  // Object        / cs-uri-stem
+                                                   + w + "([\\S]+)"  // HttpStatus    / sc-status
+                                                   + w + "([\\S]+)"  // Referrer      / cs(Referer)
+                                                   + w + "([\\S]+)"  // UserAgent     / cs(User Agent)
+                                                   + w + "(.+)");    // Querystring   / cs-uri-query
 
   // To handle the CloudFront DateTime format
-  private val cfDateFormat = new SimpleDateFormat("dd/MMM/yyyy:hh:mm:ss ZZZZZ")
-  private val hiveDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss")
+  private static final SimpleDateFormat cfDateFormat = new SimpleDateFormat("dd/MMM/yyyy:hh:mm:ss ZZZZZ");
+  private static final SimpleDateFormat hiveDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
 
   // -------------------------------------------------------------------------------------------------------------------
   // Deserialization logic
@@ -87,20 +85,20 @@ class CfLogStruct() {
    * @return This struct with all values updated
    * @throws SerDeException For any exception during parsing
    */
-  @throws(classOf[SerDeException])
-  def parse(row: String): Object = {
+  // TODO: need to update this to Java.
+  public Object parse(row: String) throws SerDeException {
     
     // Check our row is kosher
     row match {
       case CfRegex(date, time, edgelocation, bytessent, ipaddress, operation, domain, objct, httpstatus, referrer, useragent, querystring) =>
         this.dt = toHiveDate(date + " " + time)
         this.edgelocation = edgelocation
-        this.bytessent = bytessent
+        this.bytessent = toInt(bytessent)
         this.ipaddress = ipaddress
         this.operation = operation
         this.domain = domain
         this.objct = objct
-        this.httpstatus = httpstatus
+        this.httpstatus = toInt(httpstatus)
         this.referrer = referrer
         this.useragent = useragent
         this.querystring = querystring
@@ -108,7 +106,7 @@ class CfLogStruct() {
       case _ => throw new SerDeException("CloudFront regexp did not match: %s".format(row))
     }
 
-    this // Return the CfLogStruct
+    return this; // Return the CfLogStruct
   }
 
   // -------------------------------------------------------------------------------------------------------------------
@@ -122,8 +120,9 @@ class CfLogStruct() {
    * @param s The String to check
    * @return The Integer, or null if the String was "-" 
    */
-  private implicit def string2JInteger(s: String): JInteger =
-    if (s matches "-") null else Integer.valueOf(s)
+  private Integer toInt(s: String) {
+    return (s.compareTo("-") == 0) ? null : Integer.valueOf(s);
+  }
 
   /**
    * Explicit conversion to turn a "-" String into null.
@@ -133,8 +132,9 @@ class CfLogStruct() {
    * @param s The String to check
    * @return The original String, or null if the String was "-" 
    */
-  private def nullifyHyphen(s: String): String =
-    if (s matches "-") null else s
+  private String nullifyHyphen(s: String) {
+    return (s.compareTo("-") == 0) ? null : s;
+  }
 
   /**
    * Convert a date from CloudFront format to Hive format
@@ -142,6 +142,7 @@ class CfLogStruct() {
    * @param dt The datetime in CloudFront String format
    * @return The datetime in Hive-friendly String format
    */
-  private def toHiveDate(dt: String): String =
-    hiveDateFormat.format(cfDateFormat.parse(dt).getTime())
+  private String toHiveDate(dt: String) {
+    return hiveDateFormat.format(cfDateFormat.parse(dt).getTime());
+  }
 }
