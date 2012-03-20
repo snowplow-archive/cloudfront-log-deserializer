@@ -6,7 +6,7 @@ cloudfront-log-deserializer is a Deserializer to import Amazon Web Services' Clo
 
 This Deserializer serves as the basis for the SnowPlow-specific Deserializers found [in the SnowPlow project] [snowplowserdes] but should be generally useful for anyone wanting to analyse CloudFront access log files in Hive, whether SnowPlow users or not.
 
-cloudfront-log-deserializer is written in Scala and is [available] [downloads] from GitHub as a minified jarfile. Currently it only supports CloudFront's [download distribution file format] [awslogdocs] (not the streaming file format).
+cloudfront-log-deserializer is written in Java and is [available] [downloads] from GitHub as a downloadable jarfile. Currently it only supports CloudFront's [download distribution file format] [awslogdocs] (not the streaming file format).
 
 ## The CloudFront access log format
 
@@ -41,7 +41,7 @@ Here is the Hive table definition in full:
 
 ## Usage
 
-You can download a minified jarfile for cloudfront-log-deserializer from GitHub from the [Downloads] [downloads] menu.
+You can download a jarfile for cloudfront-log-deserializer from GitHub from the [Downloads] [downloads] menu.
 
 Once you have the jarfile on your classpath, using this Deserializer with Hive is easy:
 
