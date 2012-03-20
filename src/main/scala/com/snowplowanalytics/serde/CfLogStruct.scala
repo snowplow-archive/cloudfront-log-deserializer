@@ -15,7 +15,6 @@ package com.snowplowanalytics.serde
 // Java
 import java.text.SimpleDateFormat
 import java.lang.{Integer => JInteger}
-import java.lang.{Long => JLong}
 
 // Scala
 import scala.util.matching.Regex
@@ -38,7 +37,7 @@ class CfLogStruct() {
   // Mutable properties for this Hive struct
   // -------------------------------------------------------------------------------------------------------------------
 
-  var datetime: JLong = _
+  var dt: String = _
   var edgelocation: String = _
   var bytessent: JInteger = _ 
   var ipaddress: String = _
@@ -73,6 +72,7 @@ class CfLogStruct() {
 
   // To handle the CloudFront DateTime format
   private val cfDateFormat = new SimpleDateFormat("dd/MMM/yyyy:hh:mm:ss ZZZZZ")
+  private val hiveDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss")
 
   // -------------------------------------------------------------------------------------------------------------------
   // Deserialization logic
@@ -93,7 +93,7 @@ class CfLogStruct() {
     // Check our row is kosher
     row match {
       case CfRegex(date, time, edgelocation, bytessent, ipaddress, operation, domain, objct, httpstatus, referrer, useragent, querystring) =>
-        this.datetime = sinceEpoch(date + " " + time)
+        this.dt = toHiveDate(date + " " + time)
         this.edgelocation = edgelocation
         this.bytessent = bytessent
         this.ipaddress = ipaddress
@@ -137,13 +137,11 @@ class CfLogStruct() {
     if (s matches "-") null else s
 
   /**
-   * Explicit conversion to turn a "-" String into null.
-   * Useful for "-" URIs (URI is set to "-" if e.g. S3 is accessed
-   * from a file:// protocol).
+   * Convert a date from CloudFront format to Hive format
    *
-   * @param dt The datetime in String format
-   * @return The datetime in Hive-friendly seconds since epoch Long
+   * @param dt The datetime in CloudFront String format
+   * @return The datetime in Hive-friendly String format
    */
-  private def sinceEpoch(dt: String): JLong =
-    cfDateFormat.parse(dt).getTime() / 1000
+  private def toHiveDate(dt: String): String =
+    hiveDateFormat.format(cfDateFormat.parse(dt).getTime())
 }
