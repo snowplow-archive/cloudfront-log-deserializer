@@ -10,18 +10,19 @@
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
  */
-package com.snowplowanalytics.serde
+package com.snowplowanalytics.serde;
 
 // Java
-import java.nio.charset.CharacterCodingException
-import java.util.{List, Properties}
-import java.util.regex.{Matcher, Pattern}
+import java.nio.charset.CharacterCodingException;
+import java.util.List;
+import java.util.Properties;
 
 // Commons Logging
-import org.apache.commons.logging.{Log, LogFactory}
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 // Hadoop
-import org.apache.hadoop.conf.Configuration
+import org.apache.hadoop.conf.Configuration;
 
 // Hive
 import org.apache.hadoop.hive.serde2.Deserializer
