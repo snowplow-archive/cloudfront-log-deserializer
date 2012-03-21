@@ -116,6 +116,7 @@ public class CfLogDeserializer implements Deserializer {
    * @param tbl Table properties
    * @throws SerDeException For any exception during initialization
    */
+  @Override
   public void initialize(Configuration conf, Properties tbl) throws SerDeException {
 
     cachedObjectInspector = ObjectInspectorFactory.getReflectionObjectInspector(CfLogStruct.class, ObjectInspectorFactory.ObjectInspectorOptions.JAVA);
