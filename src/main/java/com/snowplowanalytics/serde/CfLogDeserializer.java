@@ -172,6 +172,7 @@ public class CfLogDeserializer implements Deserializer {
    *
    * @return The SerDe's statistics (null in this case)
    */
+  @Override
   public SerDeStats getSerDeStats() { return null; }
 
   /**
@@ -181,5 +182,6 @@ public class CfLogDeserializer implements Deserializer {
    * @return The ObjectInspector for this Deserializer 
    * @throws SerDeException For any exception during initialization
    */
+  @Override
   public ObjectInspector getObjectInspector() throws SerDeException { return cachedObjectInspector; }
 }
