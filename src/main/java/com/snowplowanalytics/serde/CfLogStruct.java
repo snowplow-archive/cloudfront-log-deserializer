@@ -101,9 +101,9 @@ public class CfLogStruct {
       this.domain = m.group(7);
       this.objct = m.group(8);
       this.httpstatus = toInt(m.group(9));
-      this.referrer = m.group(10);
+      this.referrer = nullifyHyphen(m.group(10));
       this.useragent = m.group(11);
-      this.querystring = m.group(12);    
+      this.querystring = nullifyHyphen(m.group(12));    
     } catch (Exception e) {
       throw new SerDeException("CloudFront regexp did not match: " + row, e);
     }
