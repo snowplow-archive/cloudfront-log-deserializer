@@ -25,38 +25,52 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 
 // Hive
-import org.apache.hadoop.hive.serde2.Deserializer
-import org.apache.hadoop.hive.serde2.SerDeException
-import org.apache.hadoop.hive.serde2.SerDeStats
-import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector
-import org.apache.hadoop.hive.serde2.objectinspector.{ObjectInspectorFactory => OIF}
-import org.apache.hadoop.hive.serde2.objectinspector.ReflectionStructObjectInspector
-import org.apache.hadoop.hive.serde2.objectinspector.StructField
-import org.apache.hadoop.io.{BytesWritable, Text, Writable}
+import org.apache.hadoop.hive.serde2.Deserializer;
+import org.apache.hadoop.hive.serde2.SerDeException;
+import org.apache.hadoop.hive.serde2.SerDeStats;
+import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector;
+import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspectorFactory;
+import org.apache.hadoop.hive.serde2.objectinspector.ReflectionStructObjectInspector;
+import org.apache.hadoop.hive.serde2.objectinspector.StructField;
+import org.apache.hadoop.io.BytesWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.Writable;
 
 /**
  * CfLogDeserializer reads CloudFront download distribution file access log data into Hive.
  * 
  * For documentation please see the introductory README.md in the project root.
  */
-class CfLogDeserializer extends Deserializer @throws(classOf[SerDeException]) {
+class CfLogDeserializer implements Deserializer {
 
   // -------------------------------------------------------------------------------------------------------------------
-  // Default constructor
+  // Initial setup
   // -------------------------------------------------------------------------------------------------------------------
 
   // Setup logging
-  private val log: Log = LogFactory.getLog(classOf[CfLogDeserializer].getName())
+  public static final Log LOG = LogFactory.getLog(CfLogDeserializer.class.getName());
+
+  // Voodoo taken from Zemanta's S3LogDeserializer
+  static {
+    StackTraceElement[] sTrace = new Exception().getStackTrace();
+    sTrace[0].getClassName();
+  }
 
   // We'll initialize our object inspector below
-  private var inspector: ObjectInspector = _
+  private ObjectInspector cachedObjectInspector;
 
   // For performance reasons we reuse the same object to deserialize all of our rows
-  private val struct: CfLogStruct = new CfLogStruct()
+  private static final CfLogStruct cachedStruct = new CfLogStruct();
 
   // -------------------------------------------------------------------------------------------------------------------
-  // Initializer
+  // Constructor & initializer
   // -------------------------------------------------------------------------------------------------------------------
+
+  /**
+   * Empty constructor
+   */
+  public CfLogDeserializer() throws SerDeException {
+  }
 
   /**
    * Initialize the CfLogDeserializer.
@@ -65,11 +79,10 @@ class CfLogDeserializer extends Deserializer @throws(classOf[SerDeException]) {
    * @param tbl Table properties
    * @throws SerDeException For any exception during initialization
    */
-  @throws(classOf[SerDeException])
-  override def initialize(conf: Configuration, tbl: Properties) {
+  public void initialize(Configuration conf, Properties tbl) throws SerDeException {
 
-    inspector = OIF.getReflectionObjectInspector(classOf[CfLogStruct], OIF.ObjectInspectorOptions.JAVA)
-    log.debug("%s initialized".format(this.getClass.getName))
+    cachedObjectInspector = ObjectInspectorFactory.getReflectionObjectInspector(CfLogStruct.class, ObjectInspectorFactory.ObjectInspectorOptions.JAVA);
+    LOG.debug(this.getClass().getName() + ": initialized");
   }
 
   // -------------------------------------------------------------------------------------------------------------------
@@ -87,23 +100,27 @@ class CfLogDeserializer extends Deserializer @throws(classOf[SerDeException]) {
    * @return A Java object representing the contents in the blob.
    * @throws SerDeException For any exception during initialization
    */
-  @throws(classOf[SerDeException])
-  def deserialize(blob: Writable): Object = {
-  
-    // Extract the String value from the blob
-    val row: String = blob match {
-      case b:BytesWritable =>
-        try {
-          Text.decode(b.getBytes(), 0, b.getLength())
-        } catch {
-          case cce:CharacterCodingException => throw new SerDeException(cce)
-        }
-      case t:Text => t.toString()
-      case _ => throw new SerDeException("%s expects blob to be Text or BytesWritable".format(this.getClass.getName))
+  public Object deserialize(Writable field) throws SerDeException {
+    String row = null;
+    if (field instanceof BytesWritable) {
+      BytesWritable b = (BytesWritable) field;
+      try {
+        row = Text.decode(b.getBytes(), 0, b.getLength());
+      } catch (CharacterCodingException e) {
+        throw new SerDeException(e);
+      }
+    } else if (field instanceof Text) {
+      row = field.toString();
     }
-
-    // Construct and return the S3LogObject from the row data
-    struct.parse(row)
+    try {
+      // Construct and return the S3LogStruct from the row data
+      cachedStruct.parse(row);
+      return cachedStruct;
+    } catch (ClassCastException e) {
+      throw new SerDeException(this.getClass().getName() + " expects Text or BytesWritable", e);
+    } catch (Exception e) {
+      throw new SerDeException(e);
+    }
   }
 
   // -------------------------------------------------------------------------------------------------------------------
@@ -116,7 +133,7 @@ class CfLogDeserializer extends Deserializer @throws(classOf[SerDeException]) {
    *
    * @return The SerDe's statistics (null in this case)
    */
-  def getSerDeStats(): SerDeStats = null
+  public SerDeStats getSerDeStats() { return null; }
 
   /**
    * Get the object inspector that can be used to navigate through the internal
@@ -125,6 +142,5 @@ class CfLogDeserializer extends Deserializer @throws(classOf[SerDeException]) {
    * @return The ObjectInspector for this Deserializer 
    * @throws SerDeException For any exception during initialization
    */
-  @throws(classOf[SerDeException])
-  def getObjectInspector(): ObjectInspector = inspector
+  public ObjectInspector getObjectInspector() throws SerDeException { return cachedObjectInspector; }
 }

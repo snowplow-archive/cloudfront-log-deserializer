@@ -14,6 +14,7 @@ package com.snowplowanalytics.serde;
 
 // Java
 import java.text.SimpleDateFormat;
+import java.text.ParseException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -29,7 +30,7 @@ import org.apache.hadoop.hive.serde2.SerDeException;
  * Constructor is empty because we do updates-in-place for performance reasons.
  * An immutable Scala case class would be nice but fear it would be s-l-o-w
  */
-class CfLogStruct() {
+public class CfLogStruct {
 
   // -------------------------------------------------------------------------------------------------------------------
   // Mutable properties for this Hive struct
@@ -85,25 +86,26 @@ class CfLogStruct() {
    * @return This struct with all values updated
    * @throws SerDeException For any exception during parsing
    */
-  // TODO: need to update this to Java.
-  public Object parse(row: String) throws SerDeException {
+  public Object parse(String row) throws SerDeException {
     
-    // Check our row is kosher
-    row match {
-      case CfRegex(date, time, edgelocation, bytessent, ipaddress, operation, domain, objct, httpstatus, referrer, useragent, querystring) =>
-        this.dt = toHiveDate(date + " " + time)
-        this.edgelocation = edgelocation
-        this.bytessent = toInt(bytessent)
-        this.ipaddress = ipaddress
-        this.operation = operation
-        this.domain = domain
-        this.objct = objct
-        this.httpstatus = toInt(httpstatus)
-        this.referrer = referrer
-        this.useragent = useragent
-        this.querystring = querystring
-        // TODO: build the querymap too
-      case _ => throw new SerDeException("CloudFront regexp did not match: %s".format(row))
+    final Matcher m = cfRegex.matcher(row);
+    
+    try {
+      // Check our row is kosher
+      m.matches();
+      this.dt = toHiveDate(m.group(1) + " " + m.group(2));
+      this.edgelocation = m.group(3);
+      this.bytessent = toInt(m.group(4));
+      this.ipaddress = m.group(5);
+      this.operation = m.group(6);
+      this.domain = m.group(7);
+      this.objct = m.group(8);
+      this.httpstatus = toInt(m.group(9));
+      this.referrer = m.group(10);
+      this.useragent = m.group(11);
+      this.querystring = m.group(12);    
+    } catch (Exception e) {
+      throw new SerDeException("CloudFront regexp did not match:" + row, e);
     }
 
     return this; // Return the CfLogStruct
@@ -120,9 +122,7 @@ class CfLogStruct() {
    * @param s The String to check
    * @return The Integer, or null if the String was "-" 
    */
-  private Integer toInt(s: String) {
-    return (s.compareTo("-") == 0) ? null : Integer.valueOf(s);
-  }
+  private Integer toInt(String s) { return (s.compareTo("-") == 0) ? null : Integer.valueOf(s); }
 
   /**
    * Explicit conversion to turn a "-" String into null.
@@ -132,17 +132,20 @@ class CfLogStruct() {
    * @param s The String to check
    * @return The original String, or null if the String was "-" 
    */
-  private String nullifyHyphen(s: String) {
-    return (s.compareTo("-") == 0) ? null : s;
-  }
+  private String nullifyHyphen(String s) { return (s.compareTo("-") == 0) ? null : s; }
 
   /**
    * Convert a date from CloudFront format to Hive format
    *
    * @param dt The datetime in CloudFront String format
    * @return The datetime in Hive-friendly String format
+   * @throws SerDeException If anything goes wrong parsing the date
    */
-  private String toHiveDate(dt: String) {
-    return hiveDateFormat.format(cfDateFormat.parse(dt).getTime());
+  private String toHiveDate(String dt) throws SerDeException {
+    try {
+      return hiveDateFormat.format(cfDateFormat.parse(dt).getTime());
+    } catch (ParseException e) {
+      throw new SerDeException("Cannot parse " + dt + " - not a CloudFront-format date", e);
+    }
   }
 }
