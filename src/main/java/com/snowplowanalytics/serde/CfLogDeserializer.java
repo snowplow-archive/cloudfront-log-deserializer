@@ -41,7 +41,7 @@ import org.apache.hadoop.io.Writable;
  * 
  * For documentation please see the introductory README.md in the project root.
  */
-class CfLogDeserializer implements Deserializer {
+public class CfLogDeserializer implements Deserializer {
 
   // -------------------------------------------------------------------------------------------------------------------
   // Initial setup
@@ -61,6 +61,43 @@ class CfLogDeserializer implements Deserializer {
 
   // For performance reasons we reuse the same object to deserialize all of our rows
   private static final CfLogStruct cachedStruct = new CfLogStruct();
+
+  // -------------------------------------------------------------------------------------------------------------------
+  // Only test - TODO move this out into test suite
+  // -------------------------------------------------------------------------------------------------------------------
+
+  /**
+   * @param args
+   */
+  public static void runTest() {
+    System.err.println("This is only a test run");
+    try {
+      CfLogDeserializer serDe = new CfLogDeserializer();
+      Configuration conf = new Configuration();
+      Properties tbl = new Properties();
+      Text sample = new Text("02/01/2011 01:13:11 FRA2 182 192.0.2.10 GET d2819bc28.cloudfront.net /view/my/file.html 200 www.displaymyfiles.com Mozilla/4.0%20(compatible;%20MSIE%205.0b1;%20Mac_PowerPC) -");
+      // Text sample = new Text("02/01/2011 01:13:12 LAX1 2390282 192.0.2.202 GET www.singalong.com /soundtrack/happy.mp3 304 www.unknownsingers.com Mozilla/4.0%20(compatible;%20MSIE%207.0;%20Windows%20NT%205.1) a=b&c=d");
+      serDe.initialize(conf, tbl);
+      Object row = serDe.deserialize(sample);
+      System.err.println(serDe.getObjectInspector().getClass().toString());
+      ReflectionStructObjectInspector oi = (ReflectionStructObjectInspector) serDe
+          .getObjectInspector();
+      List<? extends StructField> fieldRefs = oi.getAllStructFieldRefs();
+      for (int i = 0; i < fieldRefs.size(); i++) {
+        System.err.println(fieldRefs.get(i).toString());
+        Object fieldData = oi.getStructFieldData(row, fieldRefs.get(i));
+        if (fieldData == null) {
+          System.err.println("null");
+        } else {
+          System.err.println(fieldData.toString());
+        }
+      }
+
+    } catch (Exception e) {
+      System.err.println("Caught: " + e);
+      e.printStackTrace();
+    }
+  }
 
   // -------------------------------------------------------------------------------------------------------------------
   // Constructor & initializer

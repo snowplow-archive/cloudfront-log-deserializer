@@ -69,10 +69,6 @@ public class CfLogStruct {
                                                    + w + "([\\S]+)"  // UserAgent     / cs(User Agent)
                                                    + w + "(.+)");    // Querystring   / cs-uri-query
 
-  // To handle the CloudFront DateTime format
-  private static final SimpleDateFormat cfDateFormat = new SimpleDateFormat("dd/MMM/yyyy:hh:mm:ss ZZZZZ");
-  private static final SimpleDateFormat hiveDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-
   // -------------------------------------------------------------------------------------------------------------------
   // Deserialization logic
   // -------------------------------------------------------------------------------------------------------------------
@@ -93,7 +89,7 @@ public class CfLogStruct {
     try {
       // Check our row is kosher
       m.matches();
-      this.dt = toHiveDate(m.group(1) + " " + m.group(2));
+      this.dt = toHiveDate(m.group(1)) + " " + m.group(2);
       this.edgelocation = m.group(3);
       this.bytessent = toInt(m.group(4));
       this.ipaddress = m.group(5);
@@ -105,7 +101,7 @@ public class CfLogStruct {
       this.useragent = m.group(11);
       this.querystring = nullifyHyphen(m.group(12));    
     } catch (Exception e) {
-      throw new SerDeException("CloudFront regexp did not match: " + row, e);
+      throw new SerDeException("Could not parse row: " + row, e);
     }
 
     return this; // Return the CfLogStruct
@@ -135,17 +131,22 @@ public class CfLogStruct {
   private String nullifyHyphen(String s) { return (s.compareTo("-") == 0) ? null : s; }
 
   /**
-   * Convert a date from CloudFront format to Hive format
+   * Convert a date from CloudFront format to Hive format:
+   * dd/MM/yyyy to yyyy-MM-dd
    *
-   * @param dt The datetime in CloudFront String format
-   * @return The datetime in Hive-friendly String format
+   * @param date The date in CloudFront String format
+   * @return The date in Hive String format
    * @throws SerDeException If anything goes wrong parsing the date
    */
-  private String toHiveDate(String dt) throws SerDeException {
+  private String toHiveDate(String date) throws SerDeException {
+
+   // We have to do this on every row, so use a super-simple
+   // split() rather than two SimpleDateFormats for performance    
     try {
-      return hiveDateFormat.format(cfDateFormat.parse(dt).getTime());
-    } catch (ParseException e) {
-      throw new SerDeException("Cannot parse, not a CloudFront-format date: " + dt, e);
+      final String arr[] = date.split("/");
+      return (arr[2] + '-' + arr[1] + '-' + arr[0]);
+    } catch (Exception e) {
+      throw new SerDeException("Cannot parse, not a CloudFront-format date: " + date, e);
     }
   }
 }
