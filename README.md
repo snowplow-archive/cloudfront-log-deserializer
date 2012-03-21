@@ -54,11 +54,19 @@ Here is the Hive table definition in full:
 
 ## Usage
 
-You can download a jarfile for cloudfront-log-deserializer from GitHub from the [Downloads] [downloads] menu.
+First, download the latest jarfile for cloudfront-log-deserializer from GitHub from the [Downloads] [downloads] menu.
 
-Once you have the jarfile on your classpath, using this Deserializer with Hive is easy:
+Then upload the jarfile into an S3 bucket accessible from your Hive console.
 
-    TODO 
+Now using this Deserializer with Hive should be quite easy:
+
+    ADD JAR s3://{{JARS-BUCKET-NAME}}/cf-log-deserializer-0.2.jar;
+
+    CREATE EXTERNAL TABLE accesses 
+    PARTITIONED BY (dt STRING)
+    ROW FORMAT 
+      SERDE 'com.snowplowanalytics.serde.CfLogDeserializer'
+    LOCATION 's3://{{LOGS-BUCKET-NAME}}/';
 
 Note that in the `CREATE TABLE` statement above, you do **not** have to manually specify all of the columns to create for this table. This is because Hive will query the SerDe to determine the _actual_ list of columns for this table.
 
