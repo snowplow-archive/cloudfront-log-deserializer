@@ -60,7 +60,7 @@ Once you have the jarfile on your classpath, using this Deserializer with Hive i
 
     TODO 
 
-Note that in the `CREATE TABLE` statement above, you do **not** have to manually specify all of the columns to create for this table. This is because Hive will query the SerDe to determine the _actual_ actual list of columns for this table.
+Note that in the `CREATE TABLE` statement above, you do **not** have to manually specify all of the columns to create for this table. This is because Hive will query the SerDe to determine the _actual_ list of columns for this table.
 
 ## See also
 
