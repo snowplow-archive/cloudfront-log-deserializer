@@ -140,8 +140,8 @@ public class CfLogStruct {
    */
   private String toHiveDate(String date) throws SerDeException {
 
-   // We have to do this on every row, so use a super-simple
-   // split() rather than two SimpleDateFormats for performance    
+    // We have to do this on every row, so use a super-simple
+    // split() rather than two SimpleDateFormats for performance    
     try {
       final String arr[] = date.split("/");
       return (arr[2] + '-' + arr[1] + '-' + arr[0]);
