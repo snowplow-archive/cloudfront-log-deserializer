@@ -84,6 +84,11 @@ public class CfLogStruct {
    */
   public Object parse(String row) throws SerDeException {
     
+    // We have to handle any header rows
+    if (row.startsWith("#Version:") || row.startsWith("#Fields:")) {
+      return null; // Empty row will be discarded by Hive
+    }
+
     final Matcher m = cfRegex.matcher(row);
     
     try {
