@@ -37,7 +37,20 @@ cloudfront-log-deserializer maps the access log format for a download distributi
 
 Here is the Hive table definition in full:
 
-    TODO
+    CREATE EXTERNAL TABLE impressions (
+      dt STRING,
+      edgelocation STRING,
+      bytessent INT,
+      ipaddress STRING,
+      operation STRING,
+      domain STRING,
+      objct STRING,
+      httpstatus STRING,
+      referrer STRING, 
+      useragent STRING,
+      querystring STRING
+    )
+    ...
 
 ## Usage
 
@@ -46,6 +59,8 @@ You can download a jarfile for cloudfront-log-deserializer from GitHub from the 
 Once you have the jarfile on your classpath, using this Deserializer with Hive is easy:
 
     TODO 
+
+Note that in the `CREATE TABLE` statement above, you do **not** have to manually specify all of the columns to create for this table. This is because Hive will query the SerDe to determine the _actual_ actual list of columns for this table.
 
 ## See also
 
