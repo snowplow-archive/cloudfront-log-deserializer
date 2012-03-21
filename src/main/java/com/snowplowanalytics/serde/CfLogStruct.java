@@ -105,7 +105,7 @@ public class CfLogStruct {
       this.useragent = m.group(11);
       this.querystring = m.group(12);    
     } catch (Exception e) {
-      throw new SerDeException("CloudFront regexp did not match:" + row, e);
+      throw new SerDeException("CloudFront regexp did not match: " + row, e);
     }
 
     return this; // Return the CfLogStruct
@@ -145,7 +145,7 @@ public class CfLogStruct {
     try {
       return hiveDateFormat.format(cfDateFormat.parse(dt).getTime());
     } catch (ParseException e) {
-      throw new SerDeException("Cannot parse " + dt + " - not a CloudFront-format date", e);
+      throw new SerDeException("Cannot parse, not a CloudFront-format date: " + dt, e);
     }
   }
 }

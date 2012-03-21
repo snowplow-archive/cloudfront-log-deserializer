@@ -82,7 +82,7 @@ class CfLogDeserializer implements Deserializer {
   public void initialize(Configuration conf, Properties tbl) throws SerDeException {
 
     cachedObjectInspector = ObjectInspectorFactory.getReflectionObjectInspector(CfLogStruct.class, ObjectInspectorFactory.ObjectInspectorOptions.JAVA);
-    LOG.debug(this.getClass().getName() + ": initialized");
+    LOG.debug(this.getClass().getName() + " initialized");
   }
 
   // -------------------------------------------------------------------------------------------------------------------
