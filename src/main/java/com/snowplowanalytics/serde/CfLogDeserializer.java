@@ -138,6 +138,7 @@ public class CfLogDeserializer implements Deserializer {
    * @return A Java object representing the contents in the blob.
    * @throws SerDeException For any exception during initialization
    */
+  @Override
   public Object deserialize(Writable field) throws SerDeException {
     String row = null;
     if (field instanceof BytesWritable) {
