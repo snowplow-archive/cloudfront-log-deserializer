@@ -36,13 +36,14 @@ public class CfLogStruct {
   // Mutable properties for this Hive struct
   // -------------------------------------------------------------------------------------------------------------------
 
-  public String dt;
+  public String date;
+  public String time;
   public String edgelocation;
   public Integer bytessent; 
   public String ipaddress;
   public String operation;
   public String domain;
-  public String objct;
+  public String object;
   public Integer httpstatus;
   public String referrer;
   public String useragent;
@@ -94,13 +95,14 @@ public class CfLogStruct {
     try {
       // Check our row is kosher
       m.matches();
-      this.dt = m.group(1) + " " + m.group(2); // No need for toHiveDate any more - CloudFront date format matches Hive's
+      this.date = m.group(1);
+      this.time = m.group(2); // No need for toHiveDate any more - CloudFront date format matches Hive's
       this.edgelocation = m.group(3);
       this.bytessent = toInt(m.group(4));
       this.ipaddress = m.group(5);
       this.operation = m.group(6);
       this.domain = m.group(7);
-      this.objct = m.group(8);
+      this.object = m.group(8);
       this.httpstatus = toInt(m.group(9));
       this.referrer = nullifyHyphen(m.group(10));
       this.useragent = m.group(11);
@@ -134,29 +136,4 @@ public class CfLogStruct {
    * @return The original String, or null if the String was "-" 
    */
   private String nullifyHyphen(String s) { return (s.compareTo("-") == 0) ? null : s; }
-
-  // -------------------------------------------------------------------------------------------------------------------
-  // Deprecated
-  // -------------------------------------------------------------------------------------------------------------------
-
-  /**
-  /**
-   * Convert a date from CloudFront format to Hive format:
-   * dd/MM/yyyy to yyyy-MM-dd
-   *
-   * @param date The date in CloudFront String format
-   * @return The date in Hive String format
-   * @throws SerDeException If anything goes wrong parsing the date
-   */
-  private String toHiveDate(String date) throws SerDeException {
-
-    // We have to do this on every row, so use a super-simple
-    // split() rather than two SimpleDateFormats for performance    
-    try {
-      final String arr[] = date.split("/");
-      return (arr[2] + '-' + arr[1] + '-' + arr[0]);
-    } catch (Exception e) {
-      throw new SerDeException("Cannot parse, not a CloudFront-format date: " + date, e);
-    }
-  }
 }

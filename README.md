@@ -38,13 +38,14 @@ cloudfront-log-deserializer maps the access log format for a download distributi
 Here is the Hive table definition in full:
 
     CREATE EXTERNAL TABLE impressions (
-      dt STRING,
+      date STRING,
+      time STRING,
       edgelocation STRING,
       bytessent INT,
       ipaddress STRING,
       operation STRING,
       domain STRING,
-      objct STRING,
+      object STRING,
       httpstatus STRING,
       referrer STRING, 
       useragent STRING,
