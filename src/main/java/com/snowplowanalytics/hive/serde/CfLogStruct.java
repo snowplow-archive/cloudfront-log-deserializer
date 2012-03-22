@@ -10,7 +10,7 @@
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
  */
-package com.snowplowanalytics.serde;
+package com.snowplowanalytics.hive.serde;
 
 // Java
 import java.text.SimpleDateFormat;
@@ -94,7 +94,7 @@ public class CfLogStruct {
     try {
       // Check our row is kosher
       m.matches();
-      this.dt = toHiveDate(m.group(1)) + " " + m.group(2);
+      this.dt = m.group(1) + " " + m.group(2); // No need for toHiveDate any more - CloudFront date format matches Hive's
       this.edgelocation = m.group(3);
       this.bytessent = toInt(m.group(4));
       this.ipaddress = m.group(5);
@@ -135,6 +135,11 @@ public class CfLogStruct {
    */
   private String nullifyHyphen(String s) { return (s.compareTo("-") == 0) ? null : s; }
 
+  // -------------------------------------------------------------------------------------------------------------------
+  // Deprecated
+  // -------------------------------------------------------------------------------------------------------------------
+
+  /**
   /**
    * Convert a date from CloudFront format to Hive format:
    * dd/MM/yyyy to yyyy-MM-dd
