@@ -36,8 +36,8 @@ public class CfLogStruct {
   // Mutable properties for this Hive struct
   // -------------------------------------------------------------------------------------------------------------------
 
-  public String date;
-  public String time;
+  public String dt;
+  public String tm;
   public String edgelocation;
   public Integer bytessent; 
   public String ipaddress;
@@ -95,8 +95,8 @@ public class CfLogStruct {
     try {
       // Check our row is kosher
       m.matches();
-      this.date = m.group(1);
-      this.time = m.group(2); // No need for toHiveDate any more - CloudFront date format matches Hive's
+      this.dt = m.group(1);
+      this.tm = m.group(2); // No need for toHiveDate any more - CloudFront date format matches Hive's
       this.edgelocation = m.group(3);
       this.bytessent = toInt(m.group(4));
       this.ipaddress = m.group(5);
