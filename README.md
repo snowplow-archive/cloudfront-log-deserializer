@@ -33,7 +33,7 @@ For more details on this file format (or indeed the streaming distribution file 
 
 ## The Hive table format
 
-cloudfront-log-deserializer maps the access log format for a download distribution very directly onto an equivalent Hive table structure. The only transformation is that the querystring on the accessed URI is converted into a Hive `MAP<STRING, STRING>`.
+cloudfront-log-deserializer maps the access log format for a download distribution very directly onto an equivalent Hive table structure.
 
 Here is the Hive table definition in full:
 
