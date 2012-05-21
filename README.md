@@ -74,9 +74,24 @@ A couple of points on this:
 * Don't forget the trailing slash on your `LOCATION`, or you will get a cryptic "Can not create a Path from an empty string" exception
 * In the `CREATE EXTERNAL TABLE` statement above, you do **not** have to manually specify all of the columns to create for this table. This is because Hive will query the SerDe to determine the _actual_ list of columns for this table.
 
-Once you have created this table, you should be able to perform simple tests:
+Once you have created this table, you should be able to perform the following simple tests / queries:
 
-    TODO
+1. Checking the number of accesses per day
+
+  SELECT 
+    `dt`,
+    COUNT(DISTINCT `tm`) 
+  FROM `accesses`
+  GROUP BY `dt`
+
+2. Look at the number of logs per referrer by day:
+
+  SELECT
+    `dt`
+    `referrer`,
+    COUNT(DISTINCT `tm`)
+  FROM `accesses`
+  GROUP BY `dt`, `referrer`
 
 ## See also
 
