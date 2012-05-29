@@ -76,8 +76,7 @@ A couple of points on this:
 
 Once you have created this table, you should be able to perform the following simple tests / queries:
 
-1. Checking the number of accesses per day
-
+Checking the number of accesses per day:
 
     SELECT 
       `dt`,
@@ -85,7 +84,7 @@ Once you have created this table, you should be able to perform the following si
     FROM `accesses`
     GROUP BY `dt`
 
-2. Look at the number of logs per referrer by day:
+Looking at the number of logs per referrer by day:
 
     SELECT
       `dt`
