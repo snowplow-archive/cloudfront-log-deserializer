@@ -78,20 +78,21 @@ Once you have created this table, you should be able to perform the following si
 
 1. Checking the number of accesses per day
 
-  SELECT 
-    `dt`,
-    COUNT(DISTINCT `tm`) 
-  FROM `accesses`
-  GROUP BY `dt`
+
+    SELECT 
+      `dt`,
+      COUNT(DISTINCT `tm`) 
+    FROM `accesses`
+    GROUP BY `dt`
 
 2. Look at the number of logs per referrer by day:
 
-  SELECT
-    `dt`
-    `referrer`,
-    COUNT(DISTINCT `tm`)
-  FROM `accesses`
-  GROUP BY `dt`, `referrer`
+    SELECT
+      `dt`
+      `referrer`,
+      COUNT(DISTINCT `tm`)
+    FROM `accesses`
+    GROUP BY `dt`, `referrer`
 
 ## See also
 
