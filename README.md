@@ -4,7 +4,7 @@
 
 cloudfront-log-deserializer is a Deserializer to import Amazon Web Services' CloudFront access logs into [Apache Hive] [hive] ready for analysis.
 
-This Deserializer serves as the basis for the SnowPlow-specific Deserializers found [in the SnowPlow project] [snowplowserdes] but should be generally useful for anyone wanting to analyse CloudFront access log files in Hive, whether SnowPlow users or not.
+This Deserializer is used as a basis for the more specialized Deserializers used in [SnowPlow] [snowplow], a web-scale analytics platform built on Hadoop and Hive. 
 
 cloudfront-log-deserializer is written in Java and is [available] [downloads] from GitHub as a downloadable jarfile. Currently it only supports CloudFront's [download distribution file format] [awslogdocs] (not the streaming file format).
 
@@ -114,7 +114,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 [hive]: http://hive.apache.org/ 
-[snowplowserdes]: https://github.com/snowplow/snowplow/tree/master/serdes
+[snowplow]: https://github.com/snowplow/snowplow
 [awslogdocs]: http://docs.amazonwebservices.com/AmazonCloudFront/latest/DeveloperGuide/AccessLogs.html#LogFileFormat
 [license]: http://www.apache.org/licenses/LICENSE-2.0
 [loganalyzer]: http://elasticmapreduce.s3.amazonaws.com/samples/cloudfront/code/cloudfront-loganalyzer.tgz
