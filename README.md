@@ -102,7 +102,7 @@ If you find this Deserializer helpful, you might also want to take a look at:
 
 ## Copyright and license
 
-cloudfront-log-deserializer is copyright 2012 Orderly Ltd.
+cloudfront-log-deserializer is copyright 2012 SnowPlow Analytics Ltd.
 
 Licensed under the [Apache License, Version 2.0] [license] (the "License");
 you may not use this software except in compliance with the License.
