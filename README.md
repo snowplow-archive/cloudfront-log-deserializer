@@ -64,7 +64,6 @@ Now using this Deserializer with Hive should be quite easy:
     ADD JAR s3://{{JARS-BUCKET-NAME}}/cf-log-deserializer-0.2.jar;
 
     CREATE EXTERNAL TABLE accesses 
-    PARTITIONED BY (dt STRING)
     ROW FORMAT 
       SERDE 'com.snowplowanalytics.hive.serde.CfLogDeserializer'
     LOCATION 's3://{{LOGS-BUCKET-NAME}}/';
