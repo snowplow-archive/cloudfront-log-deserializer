@@ -61,7 +61,7 @@ Then upload the jarfile into an S3 bucket accessible from your Hive console.
 
 Now using this Deserializer with Hive should be quite easy:
 
-    ADD JAR s3://{{JARS-BUCKET-NAME}}/cf-log-deserializer-0.2.jar;
+    ADD JAR s3://{{JARS-BUCKET-NAME}}/cloudfront-log-deserializer-0.2.jar;
 
     CREATE EXTERNAL TABLE accesses 
     ROW FORMAT 
