@@ -28,11 +28,8 @@ The access log files for a download distribution contain the following fields ru
 | `cs(Referer)`     | The referrer, or a single dash (-) if there is no referrer                                                                                                                                    |
 | `cs(User Agent)`  | The user agent                                                                                                                                                                                |
 | `cs-uri-query`    | The querystring portion of the requested URI, or a single dash (-) if none. Max length is 8kB and encoding standard is RFC 1738 |
-
 | `cs(Cookie)`      | The cookie header in the request, including name-value pairs and the associated attributes. If you enable cookie logging, CloudFront logs the cookies in all requests regardless of which cookies you choose to forward to the origin: none, all, or a whitelist of cookie names. When a request doesn't include a cookie header, the log file contains a single hyphen (-) in the cs(Cookie) field for that request. |
-
 | `x-edge-result-type` | Hit, RefreshHit, Miss, LimitExceeded, CapacityExceeded or Error |
-
 | `x-edge-request-id` | An encrypted string that uniquely identifies a request. |
 
 
