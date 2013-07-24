@@ -49,7 +49,10 @@ Here is the Hive table definition in full:
       httpstatus STRING,
       referrer STRING, 
       useragent STRING,
-      querystring STRING
+      querystring STRING,
+      cookie STRING,
+      resulttype STRING,
+      requestid STRING,
     )
     ...
 

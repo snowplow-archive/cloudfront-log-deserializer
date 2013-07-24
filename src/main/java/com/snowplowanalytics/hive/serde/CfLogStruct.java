@@ -48,6 +48,9 @@ public class CfLogStruct {
   public String referrer;
   public String useragent;
   public String querystring;
+  public String cookie;
+  public String resulttype;
+  public String requestid;
   // var querymap: Map[String, String] TODO add this
 
   // -------------------------------------------------------------------------------------------------------------------
@@ -68,7 +71,10 @@ public class CfLogStruct {
                                                    + w + "([\\S]+)"  // HttpStatus    / sc-status
                                                    + w + "([\\S]+)"  // Referrer      / cs(Referer)
                                                    + w + "([\\S]+)"  // UserAgent     / cs(User Agent)
-                                                   + w + "(.+)");    // Querystring   / cs-uri-query
+                                                   + w + "([\\S]+)"  // Querystring   / cs(Querystring)
+                                                   + w + "([\\S]+)"  // Cookie        / cs(Cookie)
+                                                   + w + "([\\S]+)"  // ResultType    / x-edge-result-type
+                                                   + w + "(.+)");    // RequestId     / x-edge-request-id
 
   // -------------------------------------------------------------------------------------------------------------------
   // Deserialization logic
@@ -107,6 +113,9 @@ public class CfLogStruct {
       this.referrer = nullifyHyphen(m.group(10));
       this.useragent = m.group(11);
       this.querystring = nullifyHyphen(m.group(12));    
+      this.cookie = nullifyHyphen(m.group(13));
+      this.resulttype = m.group(14);
+      this.requestid = m.group(15);
     } catch (Exception e) {
       throw new SerDeException("Could not parse row: " + row, e);
     }
